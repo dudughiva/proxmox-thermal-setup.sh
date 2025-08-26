@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+echo "=== Installing required packages ==="
+apt update
+apt install -y lm-sensors ipmitool dmidecode
+
+echo "=== Creating cputemp.sh ==="
+cat >/usr/local/bin/cputemp.sh <<'EOF'
+#!/bin/bash
+# Your working CPU temp script here
+sensors | grep -A 0 'Core ' 
+EOF
+chmod +x /usr/local/bin/cputemp.sh
+
+echo "=== Creating memtemp.sh ==="
+cat >/usr/local/bin/memtemp.sh <<'EOF'
+#!/bin/bash
+# Your working memtemp script here (color-coded + N/A logic)
+# ... paste the full memtemp code we finalized ...
+EOF
+chmod +x /usr/local/bin/memtemp.sh
+
+echo "=== Creating systemp ==="
+cat >/usr/local/bin/systemp <<'EOF'
+#!/bin/bash
+RED="\033[1;31m"; YELLOW="\033[1;33m"; GREEN="\033[1;32m"; RESET="\033[0m"
+echo -e "\n==================== SYSTEM THERMAL STATUS ====================\n"
+echo "=== CPU Temperatures ==="
+/usr/local/bin/cputemp.sh
+echo
+echo "=== DIMM Temperatures & Memory Margins ==="
+/usr/local/bin/memtemp.sh
+echo -e "\n===============================================================\n"
+EOF
+chmod +x /usr/local/bin/systemp
+
+echo "=== Done! You can now run 'cputemp', 'memtemp', or 'systemp' ==="
